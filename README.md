@@ -21,7 +21,8 @@ Clone this repository and start QEMU with the image:
 ```
 This image has a allno-config linux-kernel, a statically compiled busybox,
 where only 'sh' (the shell) and 'cat' is enabled and a ramdisk
-with this repository.
+with this repository. After running the steps, you can call
+not enabled (symlinked) commands with e.g. `busybox ls -l /tmp`.
 
 ## TODO
 

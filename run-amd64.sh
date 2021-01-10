@@ -1,6 +1,7 @@
 #!/bin/sh
 #
-# https://diveinto.html5doctor.com/
+# sorry, this script needs still a lot of
+# cleanup, please ignore all the comment for now
 #
 # https://www.gnu.org/software/mes/
 # https://www.gnu.org/software/mes/manual/mes.html#Invoking-mescc
@@ -26,6 +27,17 @@
 # https://www.freelists.org/post/bootstrappable/wipfullsourcebootstrap-from-a-357byte-hex0-to-hello
 # bootstrap to tcc: https://bpa.st/53FQ
 # mes -> mescc -> tcc -> GCC 2.95.0 -> GCC 4.7.5 -> GCC10?
+#
+# ( https://diveinto.html5doctor.com )
+#
+# LAP: ( cd .. && tar czf gnu-mes-documentation-attempt.tgz gnu-mes-documentation-attempt )
+#      scp ../gnu-mes-documentation-attempt.tgz 10.63.22.100:software/
+# RYZ: ( cd software/ && tar xzf gnu-mes-documentation-attempt.tgz )
+#      KEEP='/bin/busybox /bin/sh /bin/cat'
+#      DIR='/home/bastian/software/gnu-mes-documentation-attempt'
+#
+#      INITRD_DIR_ADD="$DIR" KEEP_LIST="$KEEP" ./minilinux.sh 31
+
 
 
 # "with M2-Planet being the simplest to port to your architecture, MesCC is in Scheme"
@@ -146,15 +158,14 @@ SRC="$TMPDIR/M2-full.hex2"
 cat "$SRC1" "$SRC2" >"$SRC"
 #
 DST="$TMPDIR/M2.bin"
-$COMPILER_HEX2 "$SRC" "$DST" && chmod +x "$DST" && COMPILER_M2="$DST"
-test $? -eq 0 || exit
+$COMPILER_HEX2 "$SRC" "$DST" && chmod +x "$DST" || exit
+COMPILER_M2="$DST"
 
 echo "### step09 | produce 'blood-elf.M1'"
 DST="$TMPDIR/blood-elf.M1"
 ARGS="$( for SRC in step09/*; do printf '%s ' "-f $SRC"; done )"
 # blood-elf.c calloc.c exit.c file.c file_print.c in_set.c malloc.c match.c numerate_number.c require.c
-$COMPILER_M2 --architecture amd64 $ARGS -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_M2 --architecture amd64 $ARGS -o "$DST" || exit
 
 echo "### step10 | produce 'M2' ???"
 SRC1='step07/amd64_defs.M1'
@@ -163,8 +174,7 @@ SRC3="$DST"
 SRC="$TMPDIR/step10-all.M1"
 cat "$SRC1" "$SRC2" "$SRC3" >"$SRC"
 DST="$TMPDIR/step10-result.hex2"
-$COMPILER_M0 "$SRC" "$DST"
-test $? -eq 0 || exit
+$COMPILER_M0 "$SRC" "$DST" || exit
 
 echo "### step11 | produce 'blood-elf'"
 SRC1='step08/ELF-amd64.hex2'
@@ -172,22 +182,19 @@ SRC2="$DST"
 SRC="$TMPDIR/step11-all.hex2"
 cat "$SRC1" "$SRC2" >"$SRC"
 DST="$TMPDIR/blood-elf-0.bin"
-$COMPILER_HEX2 "$SRC" "$DST"
-test $? -eq 0 || exit
+$COMPILER_HEX2 "$SRC" "$DST" || exit
 
 echo "### step12 | produce 'M1-macro.M1'"
 COMPILER_BLOODELF="$DST"
 ARGS="$( for SRC in step12/*; do printf '%s ' "-f $SRC"; done )"
 # calloc.c exit.c file.c file_print.c in_set.c M1-macro.c malloc.c match.c numerate_number.c require.c string.c
 DST="$TMPDIR/M1-macro.M1"
-$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST" || exit
 
 echo "### step13 | produce 'M1-macro-footer.M1'"
 SRC="$DST"
 DST="$TMPDIR/M1-macro-footer.M1"
-$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST" || exit
 
 echo "### step14 | produce 'M1-macro-full.hex2'"
 SRC1='step07/amd64_defs.M1'
@@ -198,8 +205,7 @@ SRC="$TMPDIR/M1-macro-full.M1"
 cat "$SRC1" "$SRC2" "$SRC3" "$SRC4" >"$SRC"
 #
 DST="$TMPDIR/M1-macro-full.hex2"
-$COMPILER_M0 "$SRC" "$DST"
-test $? -eq 0 || exit
+$COMPILER_M0 "$SRC" "$DST" || exit
 
 echo "### step15 | produce 'M1'"
 SRC1='step08/ELF-amd64.hex2'
@@ -208,8 +214,8 @@ SRC="$TMPDIR/M1-macro-full_with_header.hex2"
 cat "$SRC1" "$SRC2" >"$SRC"
 #
 DST="$TMPDIR/M1.bin"
-$COMPILER_HEX2 "$SRC" "$DST" && chmod +x "$DST" && COMPILER_M1="$DST"
-test $? -eq 0 || exit
+$COMPILER_HEX2 "$SRC" "$DST" && chmod +x "$DST" || exit
+COMPILER_M1="$DST"
 
 echo "### step16 | produce 'HEX3'"
 DST="$TMPDIR/hex2_linker.M1"
@@ -218,8 +224,7 @@ ARGS="$( for SRC in step16/*; do printf '%s ' "-f $SRC"; done )"
 $COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST"
 SRC="$DST"
 DST="$TMPDIR/hex2_linker-footer.M1"
-$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST" || exit
 #
 SRC1='step07/amd64_defs.M1'
 SRC2='step07/libc-core.M1'
@@ -227,22 +232,20 @@ SRC3="$TMPDIR/hex2_linker.M1"
 SRC4="$DST"
 ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
 DST="$TMPDIR/hex3-pre.hex2"
-$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
 SRC1='step08/ELF-amd64.hex2'
 SRC2="$DST"
 SRC="$TMPDIR/hex3-fill.hex2"
 cat "$SRC1" "$SRC2" >"$SRC"
 DST="$TMPDIR/hex3.bin"
-$COMPILER_HEX2 "$SRC" "$DST" && chmod +x "$DST" && COMPILER_HEX3="$DST"
-test $? -eq 0 || exit
+$COMPILER_HEX2 "$SRC" "$DST" || exit
+COMPILER_HEX3="$DST"
 
 echo "### step17 | produce 'blood-elf-full.bin'"
 ARGS="$( for SRC in step17/*; do printf '%s ' "-f $SRC"; done )"
 # blood-elf.c calloc.c exit.c file.c file_print.c in_set.c malloc.c match.c numerate_number.c require.c
 DST="$TMPDIR/blood-elf.M1"
-$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST" || exit
 #
 SRC="$DST"
 DST="$TMPDIR/blood-elf-footer.M1"
@@ -254,15 +257,14 @@ SRC3="$SRC"
 SRC4="$DST"
 ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
 DST="$TMPDIR/blood-elf-full.hex2"
-$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
 #
 SRC1='step04/ELF-amd64.hex2'
 SRC2="$DST"
 DST="$TMPDIR/blood-elf-full.bin"
 ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
-$COMPILER_HEX3 -f $SRC1 -f $SRC2 $ARGS -o "$DST" --exec_enable && COMPILER_BLOODELF_FULL="$DST"
-test $? -eq 0 || exit
+$COMPILER_HEX3 -f $SRC1 -f $SRC2 $ARGS -o "$DST" --exec_enable ||exit
+COMPILER_BLOODELF_FULL="$DST"
 
 echo "### step18 | produce 'M2-planet' - OriansJ:M2-Planet code is standard C code"
 ARGS="$( for SRC in step18/*; do printf '%s ' "-f $SRC"; done )"
@@ -280,14 +282,13 @@ SRC3="$SRC"
 SRC4="$DST"
 ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
 DST="$TMPDIR/M2-planet.hex2"
-$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
 SRC1='step04/ELF-amd64.hex2'
 SRC2="$DST"
 DST="$TMPDIR/M2-Planet.bin"
 ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
-$COMPILER_HEX3 -f "$SRC1" -f "$SRC2" $ARGS -o "$DST" --exec_enable && COMPILER_M2PLANET="$DST"
-test $? -eq 0 || exit
+$COMPILER_HEX3 -f "$SRC1" -f "$SRC2" $ARGS -o "$DST" --exec_enable || exit
+COMPILER_M2PLANET="$DST"
 
 echo "### step19 | produce 'mes-m2'"
 ARGS="$( for SRC in step19/*; do printf '%s ' "-f $SRC"; done )"
@@ -296,13 +297,11 @@ ARGS="$( for SRC in step19/*; do printf '%s ' "-f $SRC"; done )"
 # mes_posix.c mes_print.c mes_read.c mes_record.c mes_string.c mes_tokenize.c mes_vector.c 
 # numerate_number.c
 DST="$TMPDIR/mes.M1"
-$COMPILER_M2PLANET --debug --architecture amd64 $ARGS -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_M2PLANET --debug --architecture amd64 $ARGS -o "$DST" || exit
 #
 SRC="$DST"
 DST="$TMPDIR/mes-footer.M1"
-$COMPILER_BLOODELF_FULL --64 -f "$SRC" -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_BLOODELF_FULL --64 -f "$SRC" -o "$DST" || exit
 #
 SRC1='step07/amd64_defs.M1'
 SRC2='step07/libc-core.M1'
@@ -310,15 +309,14 @@ SRC3="$SRC"
 SRC4="$DST"
 DST="$TMPDIR/mes.hex2"
 ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
-$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST"
-test $? -eq 0 || exit
+$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
 #
 SRC1='step04/ELF-amd64.hex2'
 SRC2="$DST"
 ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
 DST="$TMPDIR/mes-m2.bin"
-$COMPILER_HEX3 -f "$SRC1" -f "$SRC2" $ARGS -o "$DST" --exec_enable && COMPILER_MESM2="$DST"
-test $? -eq 0 || exit
+$COMPILER_HEX3 -f "$SRC1" -f "$SRC2" $ARGS -o "$DST" --exec_enable || exit
+COMPILER_MESM2="$DST"
 
 # MES_CORE=0 /tmp/tmp.3nSjiPTcKm/mes-m2.bin --help
 # Usage: /tmp/tmp.3nSjiPTcKm/mes-m2.bin [--boot boot.scm] [-f|--file file.scm] [-h|--help]
@@ -328,7 +326,7 @@ test $? -eq 0 || exit
 
 
 
-echo "### step20 | produce 'mes' + 'mes-c-library' from 'mescc.scm' via 'mes-m2.bin'"
+echo "### step20 | TODO: produce 'mes' + 'mes-c-library' from 'mescc.scm' via 'mes-m2.bin'"
 
 
 
@@ -381,7 +379,7 @@ echo "### step20 | produce 'mes' + 'mes-c-library' from 'mescc.scm' via 'mes-m2.
 # transpiler = source-2-source translator
 
 
-echo "### step21 | use 'mes' to compile a patched 'tcc'"
+echo "### step21 | TODO: use 'mes' to compile a patched 'tcc'"
 # test:
 # mes -c '(display "Hello") (newline)'
 
@@ -456,7 +454,7 @@ echo "### step21 | use 'mes' to compile a patched 'tcc'"
 
 
 
-ls -l "$DST"
+ls -l "$DST" || busybox ls -l "$DST"
 echo "dir: $TMPDIR | rm -fR $TMPDIR"
 
 # D=$(pwd)	# e.g. in step18
