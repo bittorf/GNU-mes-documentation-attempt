@@ -66,15 +66,18 @@ show_doc()
 
 	# output file until 'details' section:
 	while read -r LINE; do
-		case "$LINE" in '## Details') break ;; *) printf '%s\n' "$LINE" ;; esac
+		case "$LINE" in '## Details') break ;; '```'*) ;; *) printf '%s\n' "$LINE" ;; esac
 	done <"$1"
 
 	printf '%s' '<press enter to continue>'
 	read NOP
 
+	printf '\033c\e[3J'	# clear screen
+
 	# output file starting at 'details' section:
 	PARSE=
 	while read -r LINE; do
+		case "$LINE" in '```'*|REPO=*|FILE=*) continue ;; esac
 		case "$LINE" in '## Details') PARSE=yes ;; esac
 		case "$PARSE" in yes) printf '%s\n' "$LINE" ;; esac
 	done <"$1"

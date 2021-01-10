@@ -5,9 +5,11 @@ really start typing in our first compiler. It is
 called HEX0 and able to compile itself.
 
 A typical line looks like:
+
 ```
 48C7C2 C0010000     ; LOADI32_RDX %448   # Prepare file as RWX for owner only (700 in octal)
 ```
+
 We call this format HEX0.
 We start with the real CPU-instructions ("opcodes"),
 followed by comments: the assembler-symbols ("mnemonics")

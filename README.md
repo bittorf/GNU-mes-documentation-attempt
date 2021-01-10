@@ -36,4 +36,6 @@ not enabled (symlinked) commands with e.g. `busybox ls -l /tmp`.
 * build gcc
 * build toolchain
 * include 'kaem' and 'catm'
+* build HTML-page
+* build 'kaem' script from documentation
 
