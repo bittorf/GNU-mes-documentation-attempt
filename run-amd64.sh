@@ -69,8 +69,9 @@ show_doc()
 		case "$LINE" in '## Details') break ;; '```'*) ;; *) printf '%s\n' "$LINE" ;; esac
 	done <"$1"
 
-	printf '%s' '<press enter to continue>'
-	read NOP
+	printf '%s' '< press enter to continue, or type "auto" + enter >   '
+	case "$AUTO" in true) ;; *) read NOP ;; esac
+	case "$NOP" in auto) export AUTO=true ;; esac
 
 	printf '\033c\e[3J'	# clear screen
 
@@ -84,10 +85,11 @@ show_doc()
 
 	case "$PARSE" in '') return ;; esac
 
-	printf '%s' '<press enter to continue>'
-	read NOP
+	printf '%s' '< press enter to continue >   '
+	case "$AUTO" in true) ;; *) read NOP ;; esac
 }
 
+KERNELCMD="$( read )"
 LS="$( command -v ls || echo 'busybox ls' )"
 CHMOD="$( command -v chmod || echo false )"
 MKTEMP="$( command -v mktemp || echo false )"
