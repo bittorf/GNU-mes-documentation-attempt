@@ -1,5 +1,6 @@
 #!/bin/sh
 # this POSIX shell script only uses builtin-commands
+# another approach is: sed 's/[;#].*$//g' file.hex0 | xxd -r -p >hex0.bin
 
 FILE_SRC="$1"		# e.g. any *.hex0 source
 FILE_DST="$2"		# e.g. the resulting hex0.bin
