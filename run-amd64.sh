@@ -85,6 +85,7 @@ show_doc()
 	read NOP
 }
 
+LS="$( command -v ls || echo 'busybox ls' )"
 CHMOD="$( command -v chmod || echo false )"
 MKTEMP="$( command -v mktemp || echo false )"
 TMPDIR="$( $MKTEMP -d || echo /tmp )"		# find /tmp -type d -name 'tmp.*' -exec rm -fR {} \; 2>/dev/null
@@ -455,9 +456,15 @@ echo "### step21 | TODO: use 'mes' to compile a patched 'tcc'"
 # OriansJ:also it would be funny to say the secret to bootstrapping GCC was to write a Lisp in Haskell to run a C compiler written in scheme.
 
 
+echo
+echo "# our produced binary is '$DST':"
+$LS "$DST"
 
-ls -l "$DST" || busybox ls -l "$DST"
-echo "dir: $TMPDIR | rm -fR $TMPDIR"
+echo
+echo "# READY: '$TMPDIR' | remove with 'rm -fR $TMPDIR'"
+echo "# (the next steps are not implemented yet)"
+echo "# you can now explore the system"
+echo
 
 # D=$(pwd)	# e.g. in step18
 # LIST='...'
