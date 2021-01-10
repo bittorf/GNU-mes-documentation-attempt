@@ -36,8 +36,10 @@
 #      KEEP='/bin/busybox /bin/sh /bin/cat'
 #      DIR='/home/bastian/software/gnu-mes-documentation-attempt'
 #
-#      INITRD_DIR_ADD="$DIR" KEEP_LIST="$KEEP" ./minilinux.sh 31
-
+#      INITRD_DIR_ADD="$DIR" KEEP_LIST="$KEEP" ./minilinux.sh 32
+# LAP: scp 10.63.22.100:/home/bastian/software/minilinux/minilinux/builds/linux/arch/x86/boot/bzImage kernel.bin
+#      scp 10.63.22.100:/home/bastian/software/minilinux/minilinux/builds/initramfs.cpio.gz initramfs.cpio.gz
+#      git add kernel.bin initramfs.cpio.gz && git commit -m "update qemu image"
 
 
 # "with M2-Planet being the simplest to port to your architecture, MesCC is in Scheme"
