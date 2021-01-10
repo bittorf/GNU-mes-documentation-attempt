@@ -11,14 +11,14 @@ A typical line looks like:
 ```
 
 We call this format HEX0.
-We start with the real CPU-instructions ("opcodes"),
-followed by comments: the assembler-symbols ("mnemonics")
+It starts with the real CPU-instruction ("opcodes"),
+followed by comments: the assembler-symbol ("mnemonics")
 and a longer description for the big picture.
 
 Only the opcodes in each line are converted to bytes
-and written to a file, which is marked as executable.
+and written to a file, which is later marked as executable.
 
-The program understands 2 arguments:
+This program understands two arguments:
 source- and destination filename.
 
 ## Details
