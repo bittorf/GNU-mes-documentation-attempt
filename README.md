@@ -9,6 +9,8 @@ Clone this repository and execute `./run-amd64.sh`:
 # git clone --depth 1 https://github.com/bittorf/GNU-mes-documentation-attempt.git
 # cd GNU-mes-documentation-attempt
 # ./run-amd64.sh
+or
+# AUTO=true ./run-amd64.sh
 ```
 
 ## method two
