@@ -38,8 +38,8 @@
 #
 #      INITRD_DIR_ADD="$DIR" KEEP_LIST="$KEEP" ./minilinux.sh 32
 # LAP: scp 10.63.22.100:/home/bastian/software/minilinux/minilinux/builds/linux/arch/x86/boot/bzImage kernel.bin
-#      scp 10.63.22.100:/home/bastian/software/minilinux/minilinux/builds/initramfs.cpio.gz initramfs.cpio.gz
-#      git add kernel.bin initramfs.cpio.gz && git commit -m "update qemu image"
+#      scp 10.63.22.100:/home/bastian/software/minilinux/minilinux/builds/initramfs.cpio.xz.xz initrd.xz
+#      git add kernel.bin initrd.xz && git commit -m "update qemu image"
 
 
 # "with M2-Planet being the simplest to port to your architecture, MesCC is in Scheme"
@@ -468,7 +468,8 @@ $LS "$DST"
 echo
 echo "# READY: tmpdir is '$TMPDIR' | remove with 'rm -fR $TMPDIR'"
 echo "# (the next steps are not implemented yet)"
-echo "# you can now explore the system"
+echo "#"
+echo "# In QEMU-mode you can now explore the system, or just leave it with 'exit' and CTRL+x"
 echo
 
 # D=$(pwd)	# e.g. in step18

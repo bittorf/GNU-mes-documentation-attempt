@@ -19,7 +19,7 @@ Clone this repository and start QEMU with the image:
 ```
 # git clone --depth 1 https://github.com/bittorf/GNU-mes-documentation-attempt.git
 # cd GNU-mes-documentation-attempt
-# qemu-system-x86_64 -kernel kernel.bin -initrd initramfs.cpio.gz -nographic -append "console=ttyS0"
+# qemu-system-x86_64 -kernel kernel.bin -initrd initrd.xz -nographic -append "console=ttyS0"
 ```
 This image has a linux-kernel (allno-config), a statically compiled busybox,
 where only 'sh' (the shell) and 'cat' is enabled and a ramdisk
