@@ -30,7 +30,7 @@
 #
 # ( https://diveinto.html5doctor.com )
 #
-# LAP: ( cd .. && tar czf gnu-mes-documentation-attempt.tgz gnu-mes-documentation-attempt )
+# LAP: mv x /tmp/x.ch.$$ && cd .. && tar czf gnu-mes-documentation-attempt.tgz gnu-mes-documentation-attempt; cd -; mv /tmp/x.ch.$$ x
 #      scp ../gnu-mes-documentation-attempt.tgz 10.63.22.100:software/
 # RYZ: ( cd software/ && tar xzf gnu-mes-documentation-attempt.tgz )
 #      KEEP='/bin/busybox /bin/sh /bin/cat'
@@ -87,9 +87,9 @@ show_doc()
 
 	printf '%s' '< press enter to continue >   '
 	case "$AUTO" in true) ;; *) read NOP ;; esac
+	case "$NOP" in auto) export AUTO=true ;; esac
 }
 
-KERNELCMD="$( read )"
 LS="$( command -v ls || echo 'busybox ls' )"
 CHMOD="$( command -v chmod || echo false )"
 MKTEMP="$( command -v mktemp || echo false )"
@@ -271,7 +271,7 @@ SRC1='step04/ELF-amd64.hex2'
 SRC2="$DST"
 DST="$TMPDIR/blood-elf-full.bin"
 ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
-$COMPILER_HEX3 -f $SRC1 -f $SRC2 $ARGS -o "$DST" --exec_enable ||exit
+$COMPILER_HEX3 -f $SRC1 -f $SRC2 $ARGS -o "$DST" --exec_enable || exit
 COMPILER_BLOODELF_FULL="$DST"
 
 echo "### step18 | produce 'M2-planet' - OriansJ:M2-Planet code is standard C code"
