@@ -6,7 +6,7 @@ A try to understand the GNU mes bootstrap-a-compiler project
 
 Clone this repository and execute `./run-amd64.sh`:
 ```
-# git clone https://github.com/bittorf/GNU-mes-documentation-attempt.git
+# git clone --depth 1 https://github.com/bittorf/GNU-mes-documentation-attempt.git
 # cd GNU-mes-documentation-attempt
 # ./run-amd64.sh
 ```
@@ -15,7 +15,7 @@ Clone this repository and execute `./run-amd64.sh`:
 
 Clone this repository and start QEMU with the image:
 ```
-# git clone https://github.com/bittorf/GNU-mes-documentation-attempt.git
+# git clone --depth 1 https://github.com/bittorf/GNU-mes-documentation-attempt.git
 # cd GNU-mes-documentation-attempt
 # qemu-system-x86_64 -kernel kernel.bin -initrd initramfs.cpio.gz -nographic -append "console=ttyS0"
 ```
