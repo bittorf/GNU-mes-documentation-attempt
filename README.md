@@ -19,7 +19,7 @@ Clone this repository and start QEMU with the image:
 # cd GNU-mes-documentation-attempt
 # qemu-system-x86_64 -kernel kernel.bin -initrd initramfs.cpio.gz -nographic -append "console=ttyS0"
 ```
-This image has a allno-config linux-kernel, a statically compiled busybox,
+This image has a linux-kernel (allno-config), a statically compiled busybox,
 where only 'sh' (the shell) and 'cat' is enabled and a ramdisk
 with this repository. After running the steps, you can call
 not enabled (symlinked) commands with e.g. `busybox ls -l /tmp`.
