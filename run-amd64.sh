@@ -60,7 +60,7 @@
 # sh/ash/dash -> later kaem
 # cat -> later mcat
 
-show_doc()
+show_doc()	# outputs markdown file and wait for keypress
 {
 	printf '\033c\e[3J'	# clear screen
 
@@ -462,14 +462,15 @@ echo "### step21 | TODO: use 'mes' to compile a patched 'tcc'"
 
 
 echo
-echo "# our produced binary is '$DST':"
-$LS "$DST"
+echo "# our produced binary is '$DST': (testrun)"
+$LS -l "$DST"
+MES_CORE=0 $DST --help
 
 echo
 echo "# READY: tmpdir is '$TMPDIR' | remove with 'rm -fR $TMPDIR'"
 echo "# (the next steps are not implemented yet)"
 echo "#"
-echo "# In QEMU-mode you can now explore the system, or just leave it with 'exit' and CTRL+x"
+echo "# In QEMU-mode you can now explore the system, or just leave it with 'exit' and CTRL+A and 'x'"
 echo
 
 # D=$(pwd)	# e.g. in step18
