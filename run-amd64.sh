@@ -466,7 +466,7 @@ echo "# our produced binary is '$DST':"
 $LS "$DST"
 
 echo
-echo "# READY: '$TMPDIR' | remove with 'rm -fR $TMPDIR'"
+echo "# READY: tmpdir is '$TMPDIR' | remove with 'rm -fR $TMPDIR'"
 echo "# (the next steps are not implemented yet)"
 echo "# you can now explore the system"
 echo
