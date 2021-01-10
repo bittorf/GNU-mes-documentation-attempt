@@ -16,8 +16,8 @@ and a longer description for the big picture.
 Only the opcodes in each line are converted to bytes
 and written to a file, which is marked as executable.
 
-The program understand 2 arguments:
-Source- and destination filename.
+The program understands 2 arguments:
+source- and destination filename.
 
 ## Details
 

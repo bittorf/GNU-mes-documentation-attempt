@@ -18,4 +18,21 @@ Clone this repository and start QEMU with the image:
 
 ```
 ...
+# git clone https://github.com/bittorf/GNU-mes-documentation-attempt.git
+# cd GNU-mes-documentation-attempt
+# qemu-system-x86_64 -kernel kernel.bin -initrd initramfs.cpio.gz -nographic -append "console=ttyS0"
 ```
+
+## TODO
+
+* document all steps
+* add build instructions for qemu-image
+* add architecture i386 + aarch64
+* build mes (the c-compiler written in scheme)
+* build mes-cc (the c-compiler which can build tcc)
+* build tcc-mini
+* build tcc-real
+* build gcc
+* build toolchain
+* include 'kaem' and 'catm'
+
