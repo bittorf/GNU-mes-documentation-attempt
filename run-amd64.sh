@@ -158,7 +158,7 @@ SRC="$TMPDIR/M2-full.hex2"
 cat "$SRC1" "$SRC2" >"$SRC"
 #
 DST="$TMPDIR/M2.bin"
-$COMPILER_HEX2 "$SRC" "$DST" && chmod +x "$DST" || exit
+$COMPILER_HEX2 "$SRC" "$DST" || exit
 COMPILER_M2="$DST"
 
 echo "### step09 | produce 'blood-elf.M1'"
@@ -214,7 +214,7 @@ SRC="$TMPDIR/M1-macro-full_with_header.hex2"
 cat "$SRC1" "$SRC2" >"$SRC"
 #
 DST="$TMPDIR/M1.bin"
-$COMPILER_HEX2 "$SRC" "$DST" && chmod +x "$DST" || exit
+$COMPILER_HEX2 "$SRC" "$DST" || exit
 COMPILER_M1="$DST"
 
 echo "### step16 | produce 'HEX3'"
