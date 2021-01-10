@@ -7,10 +7,10 @@ which are converted to bytes and written to a file:
 
 Our first binary.
 
-Unfurtunately this program has a chicken-and-egg problem:
+Unfortunately this program has a chicken-and-egg problem:
 Unlike early home computers, we have no machine code monitor
 running yet, so we must must provide it as binary or
-jump direclty to step-01...
+jump directly to step-01...
 
 ## Details
 

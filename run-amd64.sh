@@ -30,7 +30,8 @@
 #
 # ( https://diveinto.html5doctor.com )
 #
-# LAP: mv x /tmp/x.ch.$$ && cd .. && tar czf gnu-mes-documentation-attempt.tgz gnu-mes-documentation-attempt; cd -; mv /tmp/x.ch.$$ x
+# LAP: find . -iname '*.md' -exec codespell {} \;
+#      mv x /tmp/x.ch.$$ && cd .. && tar czf gnu-mes-documentation-attempt.tgz gnu-mes-documentation-attempt; cd -; mv /tmp/x.ch.$$ x
 #      scp ../gnu-mes-documentation-attempt.tgz 10.63.22.100:software/
 # RYZ: ( cd software/ && tar xzf gnu-mes-documentation-attempt.tgz )
 #      KEEP='/bin/busybox /bin/sh /bin/cat'
