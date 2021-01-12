@@ -44,3 +44,5 @@ not enabled (symlinked) commands with e.g. `busybox ls -l /tmp`.
 * build HTML-page
 * add all architectures (i386, aarch64, arm, knight)
 * provide minimal architecture agnostic .tgz files for full run
+* measure SLOC for initial bootstrap code: MES vs. ASMC vs. XY
+
