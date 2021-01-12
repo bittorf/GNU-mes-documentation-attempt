@@ -32,7 +32,6 @@ not enabled (symlinked) commands with e.g. `busybox ls -l /tmp`.
 
 * document all steps
 * add build instructions for qemu-image
-* add all architecture (i386, aarch64, arm, knight)
 * build mes (the c-compiler written in scheme)
 * build mes-cc (the c-compiler which can build tcc)
 * build tcc-pre
@@ -42,4 +41,5 @@ not enabled (symlinked) commands with e.g. `busybox ls -l /tmp`.
 * autobuild kaem-script from doc
 * include 'kaem' and 'catm'
 * build HTML-page
+* add all architectures (i386, aarch64, arm, knight)
 * provide minimal architecture agnostic .tgz files for full run
