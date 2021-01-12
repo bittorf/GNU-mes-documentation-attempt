@@ -32,6 +32,7 @@ not enabled (symlinked) commands with e.g. `busybox ls -l /tmp`.
 
 * document all steps
 * add build instructions for qemu-image
+* autoupdate all files from scattered repos
 * build mes (the c-compiler written in scheme)
 * build mes-cc (the c-compiler which can build tcc)
 * build tcc-pre
