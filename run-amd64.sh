@@ -3,6 +3,9 @@
 # this POSIX shell script uses no external commands, but
 # builtins only. It builds MES and later a toolchain in /tmp
 #
+# syntax check with:
+# shellcheck --shell=dash --exclude=SC2086 run-amd64.sh
+#
 # see: https://www.gnu.org/software/mes/
 
 
@@ -23,7 +26,7 @@ show_doc()	# output markdown file and wait for keypress
 	done <"$1"
 
 	printf '%s' '< press enter to continue, or type "auto" + enter >   '
-	case "$AUTO" in true) ;; *) read NOP ;; esac
+	case "$AUTO" in true) ;; *) read -r NOP ;; esac
 	case "$NOP" in auto) export AUTO=true ;; esac
 
 	printf '\033c\e[3J'	# clear screen
@@ -39,7 +42,7 @@ show_doc()	# output markdown file and wait for keypress
 	case "$PARSE" in '') return ;; esac
 
 	printf '%s' '< press enter to continue >   '
-	case "$AUTO" in true) ;; *) read NOP ;; esac
+	case "$AUTO" in true) ;; *) read -r NOP ;; esac
 	case "$NOP" in auto) export AUTO=true ;; esac
 }
 
@@ -313,7 +316,7 @@ echo
 echo "# our produced binary is '$DST': (testrun)"
 LS="$( command -v ls || echo 'busybox ls' )"
 $LS -l "$DST"
-MES_CORE=0 $DST --help
+MES_CORE=0 $COMPILER_MESM2 --help
 echo
 echo "# READY: tmpdir is '$TMPDIR' | remove with 'rm -fR $TMPDIR'"
 echo "# (the next steps are not implemented yet)"
