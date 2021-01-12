@@ -5,12 +5,15 @@
 #
 # see: https://www.gnu.org/software/mes/
 
-LS="$( command -v ls || echo 'busybox ls' )"
-CHMOD="$( command -v chmod || echo false )"
+
+# create working directory:
+# in QEMU-mode we prefill a ramdisk with a
+# directory /tmp, so the command 'mktemp' is not needed
 MKTEMP="$( command -v mktemp || echo false )"
 TMPDIR="$( $MKTEMP -d || echo /tmp )"
 
-show_doc()	# outputs markdown file and wait for keypress
+
+show_doc()	# output markdown file and wait for keypress
 {
 	printf '\033c\e[3J'	# clear screen
 
@@ -40,6 +43,7 @@ show_doc()	# outputs markdown file and wait for keypress
 	case "$NOP" in auto) export AUTO=true ;; esac
 }
 
+
 # overview:
 show_doc 'doc.md'
 
@@ -48,12 +52,19 @@ show_doc 'doc.md'
 show_doc 'step00/doc.md'
 
 
-# produce HEX0
+# produce HEX0-binary:
 show_doc 'step01/doc.md'
 COMPILER='step01/hex0-to-binary.sh'
 SRC="step01/hex0-seed.amd64.hex0"
 DST="$TMPDIR/hex0.bin"
 $COMPILER "$SRC" "$DST" || exit
+
+
+# make sure, the created binary is executable:
+# in QEMU-mode we prefill a ramdisk with
+# an executeable 0-byte file /tmp/hex0.bin, so
+# the command 'chmod' is not needed
+CHMOD="$( command -v chmod || echo false )"
 $CHMOD +x "$DST"
 
 
@@ -300,6 +311,7 @@ echo "### step21 | TODO: use 'mes' to compile a patched 'tcc'"
 
 echo
 echo "# our produced binary is '$DST': (testrun)"
+LS="$( command -v ls || echo 'busybox ls' )"
 $LS -l "$DST"
 MES_CORE=0 $DST --help
 echo
@@ -499,6 +511,12 @@ echo
 #  ,use MODULE          - load MODULE
 #mes> 
 
+#20:47 < gio> BTW, let me add that the G language is basically a way to write sort of understandable assembly 
+#             code. It was never meant to be portable. So it makes little sense to use it other than in the 
+#             context of ASMC: in a bootloader, as the very first stage to have a compiler out of assembly.
+#20:48 < gio> It makes little sense to implement another G compiler, from my point of view. The G code is not 
+#             portable, and you will probably have to modify the G code from ASMC if you want to compile it 
+#             with another compiler.
 
 # OriansJ:also it would be funny to say the secret to bootstrapping GCC was to write a Lisp in Haskell to run a C compiler written in scheme.
 
