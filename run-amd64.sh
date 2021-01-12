@@ -1,7 +1,323 @@
 #!/bin/sh
 #
+# this POSIX shell script uses no external commands, but
+# builtins only. It builds MES and later a toolchain in /tmp
+#
+# see: https://www.gnu.org/software/mes/
+
+LS="$( command -v ls || echo 'busybox ls' )"
+CHMOD="$( command -v chmod || echo false )"
+MKTEMP="$( command -v mktemp || echo false )"
+TMPDIR="$( $MKTEMP -d || echo /tmp )"
+
+show_doc()	# outputs markdown file and wait for keypress
+{
+	printf '\033c\e[3J'	# clear screen
+
+	# output file until 'details' section:
+	while read -r LINE; do
+		case "$LINE" in '## Details') break ;; '```'*) ;; *) printf '%s\n' "$LINE" ;; esac
+	done <"$1"
+
+	printf '%s' '< press enter to continue, or type "auto" + enter >   '
+	case "$AUTO" in true) ;; *) read NOP ;; esac
+	case "$NOP" in auto) export AUTO=true ;; esac
+
+	printf '\033c\e[3J'	# clear screen
+
+	# output file starting at 'details' section:
+	PARSE=
+	while read -r LINE; do
+		case "$LINE" in '```'*|REPO=*|FILE=*) continue ;; esac
+		case "$LINE" in '## Details') PARSE=yes ;; esac
+		case "$PARSE" in yes) printf '%s\n' "$LINE" ;; esac
+	done <"$1"
+
+	case "$PARSE" in '') return ;; esac
+
+	printf '%s' '< press enter to continue >   '
+	case "$AUTO" in true) ;; *) read NOP ;; esac
+	case "$NOP" in auto) export AUTO=true ;; esac
+}
+
+# overview:
+show_doc 'doc.md'
+
+
+# machine monitor: type in hex0 source into memory/file
+show_doc 'step00/doc.md'
+
+
+# produce HEX0
+show_doc 'step01/doc.md'
+COMPILER='step01/hex0-to-binary.sh'
+SRC="step01/hex0-seed.amd64.hex0"
+DST="$TMPDIR/hex0.bin"
+$COMPILER "$SRC" "$DST" || exit
+$CHMOD +x "$DST"
+
+
+echo "### step02 | produce 'HEX1'"
+COMPILER_HEX0="$DST"
+SRC='step02/hex1_AMD64.hex0'
+DST="$TMPDIR/hex1.bin"
+$COMPILER_HEX0 "$SRC" "$DST" || exit
+
+
+echo "### step03 | produce 'HEX2'"
+COMPILER_HEX1="$DST"
+SRC='step03/hex2_AMD64.hex1'
+DST="$TMPDIR/hex2.bin"
+$COMPILER_HEX1 "$SRC" "$DST" || exit
+
+
+echo "### step04 | produce 'M0'"
+COMPILER_HEX2="$DST"
+SRC="$TMPDIR/step04-elf-m0.hex2"
+SRC1='step04/ELF-amd64.hex2'
+SRC2='step04/M0_AMD64.hex2'
+cat "$SRC1" "$SRC2" >"$SRC"
+DST="$TMPDIR/M0.bin"
+$COMPILER_HEX2 "$SRC" "$DST" || exit
+
+
+echo "### step05 | produce 'CC'"
+COMPILER_M0="$DST"
+SRC2='step05/cc_amd64.M1'
+DST1="$TMPDIR/step05-cc.hex2"
+$COMPILER_M0 "$SRC2" "$DST1"
+#
+SRC1='step05/ELF-amd64.hex2'
+SRC="$TMPDIR/step05-cc-all.hex2"
+cat "$SRC1" "$DST1" >"$SRC"
+#
+DST="$TMPDIR/step05-cc.bin"
+$COMPILER_HEX2 "$SRC" "$DST" || exit
+
+
+echo "### step06 | produce ???"
+COMPILER_CC="$DST"
+SRC="$TMPDIR/step06-all.c"
+DST="$TMPDIR/M2.M1"
+cat 'step06/amd64/'* >"$SRC"
+$COMPILER_CC "$SRC" "$DST" || exit
+
+
+echo "### step07 | produce 'M2.hex2'"
+SRC1='step07/amd64_defs.M1'
+SRC2='step07/libc-core.M1'
+SRC3="$TMPDIR/M2.M1"
+SRC="$TMPDIR/step07-all.M1"
+cat "$SRC1" "$SRC2" "$SRC3" >"$SRC"
+DST="$TMPDIR/M2.hex2"
+$COMPILER_M0 "$SRC" "$DST" || exit
+
+
+echo "### step08 | produce 'M2'"
+SRC1='step08/ELF-amd64.hex2'
+SRC2="$DST"
+SRC="$TMPDIR/M2-full.hex2"
+cat "$SRC1" "$SRC2" >"$SRC"
+#
+DST="$TMPDIR/M2.bin"
+$COMPILER_HEX2 "$SRC" "$DST" || exit
+COMPILER_M2="$DST"
+
+
+echo "### step09 | produce 'blood-elf.M1'"
+DST="$TMPDIR/blood-elf.M1"
+ARGS="$( for SRC in step09/*; do printf '%s ' "-f $SRC"; done )"
+# blood-elf.c calloc.c exit.c file.c file_print.c in_set.c malloc.c match.c numerate_number.c require.c
+$COMPILER_M2 --architecture amd64 $ARGS -o "$DST" || exit
+
+
+echo "### step10 | produce 'M2' ???"
+SRC1='step07/amd64_defs.M1'
+SRC2='step07/libc-core.M1'
+SRC3="$DST"
+SRC="$TMPDIR/step10-all.M1"
+cat "$SRC1" "$SRC2" "$SRC3" >"$SRC"
+DST="$TMPDIR/step10-result.hex2"
+$COMPILER_M0 "$SRC" "$DST" || exit
+
+
+echo "### step11 | produce 'blood-elf'"
+SRC1='step08/ELF-amd64.hex2'
+SRC2="$DST"
+SRC="$TMPDIR/step11-all.hex2"
+cat "$SRC1" "$SRC2" >"$SRC"
+DST="$TMPDIR/blood-elf-0.bin"
+$COMPILER_HEX2 "$SRC" "$DST" || exit
+
+
+echo "### step12 | produce 'M1-macro.M1'"
+COMPILER_BLOODELF="$DST"
+ARGS="$( for SRC in step12/*; do printf '%s ' "-f $SRC"; done )"
+# calloc.c exit.c file.c file_print.c in_set.c M1-macro.c malloc.c match.c numerate_number.c require.c string.c
+DST="$TMPDIR/M1-macro.M1"
+$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST" || exit
+
+
+echo "### step13 | produce 'M1-macro-footer.M1'"
+SRC="$DST"
+DST="$TMPDIR/M1-macro-footer.M1"
+$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST" || exit
+
+
+echo "### step14 | produce 'M1-macro-full.hex2'"
+SRC1='step07/amd64_defs.M1'
+SRC2='step07/libc-core.M1'
+SRC3="$TMPDIR/M1-macro.M1"
+SRC4="$TMPDIR/M1-macro-footer.M1"
+SRC="$TMPDIR/M1-macro-full.M1"
+cat "$SRC1" "$SRC2" "$SRC3" "$SRC4" >"$SRC"
+#
+DST="$TMPDIR/M1-macro-full.hex2"
+$COMPILER_M0 "$SRC" "$DST" || exit
+
+
+echo "### step15 | produce 'M1'"
+SRC1='step08/ELF-amd64.hex2'
+SRC2="$DST"
+SRC="$TMPDIR/M1-macro-full_with_header.hex2"
+cat "$SRC1" "$SRC2" >"$SRC"
+#
+DST="$TMPDIR/M1.bin"
+$COMPILER_HEX2 "$SRC" "$DST" || exit
+COMPILER_M1="$DST"
+
+
+echo "### step16 | produce 'HEX3'"
+DST="$TMPDIR/hex2_linker.M1"
+ARGS="$( for SRC in step16/*; do printf '%s ' "-f $SRC"; done )"
+# calloc.c exit.c file.c file_print.c hex2_linker.c in_set.c malloc.c match.c numerate_number.c require.c stat.c
+$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST"
+SRC="$DST"
+DST="$TMPDIR/hex2_linker-footer.M1"
+$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST" || exit
+#
+SRC1='step07/amd64_defs.M1'
+SRC2='step07/libc-core.M1'
+SRC3="$TMPDIR/hex2_linker.M1"
+SRC4="$DST"
+ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
+DST="$TMPDIR/hex3-pre.hex2"
+$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
+SRC1='step08/ELF-amd64.hex2'
+SRC2="$DST"
+SRC="$TMPDIR/hex3-fill.hex2"
+cat "$SRC1" "$SRC2" >"$SRC"
+DST="$TMPDIR/hex3.bin"
+$COMPILER_HEX2 "$SRC" "$DST" || exit
+COMPILER_HEX3="$DST"
+
+
+echo "### step17 | produce 'blood-elf-full.bin'"
+ARGS="$( for SRC in step17/*; do printf '%s ' "-f $SRC"; done )"
+# blood-elf.c calloc.c exit.c file.c file_print.c in_set.c malloc.c match.c numerate_number.c require.c
+DST="$TMPDIR/blood-elf.M1"
+$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST" || exit
+#
+SRC="$DST"
+DST="$TMPDIR/blood-elf-footer.M1"
+$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST"
+#
+SRC1='step07/amd64_defs.M1'
+SRC2='step07/libc-core.M1'
+SRC3="$SRC"
+SRC4="$DST"
+ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
+DST="$TMPDIR/blood-elf-full.hex2"
+$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
+#
+SRC1='step04/ELF-amd64.hex2'
+SRC2="$DST"
+DST="$TMPDIR/blood-elf-full.bin"
+ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
+$COMPILER_HEX3 -f $SRC1 -f $SRC2 $ARGS -o "$DST" --exec_enable || exit
+COMPILER_BLOODELF_FULL="$DST"
+
+
+echo "### step18 | produce 'M2-planet' - OriansJ:M2-Planet code is standard C code"
+ARGS="$( for SRC in step18/*; do printf '%s ' "-f $SRC"; done )"
+# calloc.c cc.c cc_core.c cc_globals.c cc.h cc_reader.c cc_strings.c cc_types.c
+# exit.c file.c file_print.c fixup.c in_set.c malloc.c match.c number_pack.c
+# numerate_number.c require.c string.c
+DST="$TMPDIR/better-M2.M1"
+$COMPILER_M2 --architecture amd64 $ARGS--debug -o "$DST"
+SRC="$DST"
+DST="$TMPDIR/M2-footer.M1"
+$COMPILER_BLOODELF_FULL --64 -f "$SRC" -o "$DST"
+SRC1='step07/amd64_defs.M1'
+SRC2='step07/libc-core.M1'
+SRC3="$SRC"
+SRC4="$DST"
+ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
+DST="$TMPDIR/M2-planet.hex2"
+$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
+SRC1='step04/ELF-amd64.hex2'
+SRC2="$DST"
+DST="$TMPDIR/M2-Planet.bin"
+ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
+$COMPILER_HEX3 -f "$SRC1" -f "$SRC2" $ARGS -o "$DST" --exec_enable || exit
+COMPILER_M2PLANET="$DST"
+
+
+echo "### step19 | produce 'mes-m2'"
+ARGS="$( for SRC in step19/*; do printf '%s ' "-f $SRC"; done )"
+# calloc.c exit.c file.c file_print.c in_set.c malloc.c match.c
+# mes_builtins.c mes.c mes_cell.c mes_eval.c mes.h mes_init.c mes_keyword.c mes_list.c mes_macro.c
+# mes_posix.c mes_print.c mes_read.c mes_record.c mes_string.c mes_tokenize.c mes_vector.c 
+# numerate_number.c
+DST="$TMPDIR/mes.M1"
+$COMPILER_M2PLANET --debug --architecture amd64 $ARGS -o "$DST" || exit
+#
+SRC="$DST"
+DST="$TMPDIR/mes-footer.M1"
+$COMPILER_BLOODELF_FULL --64 -f "$SRC" -o "$DST" || exit
+#
+SRC1='step07/amd64_defs.M1'
+SRC2='step07/libc-core.M1'
+SRC3="$SRC"
+SRC4="$DST"
+DST="$TMPDIR/mes.hex2"
+ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
+$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
+#
+SRC1='step04/ELF-amd64.hex2'
+SRC2="$DST"
+ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
+DST="$TMPDIR/mes-m2.bin"
+$COMPILER_HEX3 -f "$SRC1" -f "$SRC2" $ARGS -o "$DST" --exec_enable || exit
+COMPILER_MESM2="$DST"
+
+
+echo "### step20 | TODO: produce 'mes' + 'mes-c-library' from 'mescc.scm' via 'mes-m2.bin'"
+
+
+echo "### step21 | TODO: use 'mes' to compile a patched 'tcc'"
+
+
+echo
+echo "# our produced binary is '$DST': (testrun)"
+$LS -l "$DST"
+MES_CORE=0 $DST --help
+echo
+echo "# READY: tmpdir is '$TMPDIR' | remove with 'rm -fR $TMPDIR'"
+echo "# (the next steps are not implemented yet)"
+echo "#"
+echo "# In QEMU-mode you can now explore the system, or just leave it with 'exit' and CTRL+A and 'x'"
+echo
+
+
 # sorry, this script needs still a lot of
-# cleanup, please ignore all the comment for now
+# cleanup, please ignore all the comment below for now
+#
+#
+# D=$(pwd)	# e.g. in step18
+# LIST='...'
+# I=0; for F in $LIST; do test -f "$F" || continue; J=$I; test ${#J} -eq 1 && J=0$J; B=$(basename $F); cp -v $F $D/${J}_$B; I=$((I+1)); done
+# for F in $( cd step18 && ls -1 | cut -b4- | sort ); do printf '%s ' $F; done
 #
 # https://www.gnu.org/software/mes/
 # https://www.gnu.org/software/mes/manual/mes.html#Invoking-mescc
@@ -11,6 +327,7 @@
 # https://github.com/oriansj/stage0/blob/master/README.org
 # https://github.com/oriansj/mescc-tools-seed
 # https://github.com/oriansj/mes-m2
+# https://github.com/oriansj/kaem
 # https://github.com/oriansj/talk-notes/blob/master/talks.org
 # https://github.com/oriansj/blynn-compiler
 # https://www.gnu.org/software/mes/manual/mes.html
@@ -55,287 +372,11 @@
 
 # "I feel like a lot of compiler theory is counterproductive because it makes the problem seem harder than it is"
 # "Jack Crenshaw's "Let's Build a Compiler" is one that doesn't, but I haven't actually read it"
-
-### dependencies:
-# (mktemp) -> include dir /tmp and try to write a testfile
-# sh/ash/dash -> later kaem
-# cat -> later mcat
-
-show_doc()	# outputs markdown file and wait for keypress
-{
-	printf '\033c\e[3J'	# clear screen
-
-	# output file until 'details' section:
-	while read -r LINE; do
-		case "$LINE" in '## Details') break ;; '```'*) ;; *) printf '%s\n' "$LINE" ;; esac
-	done <"$1"
-
-	printf '%s' '< press enter to continue, or type "auto" + enter >   '
-	case "$AUTO" in true) ;; *) read NOP ;; esac
-	case "$NOP" in auto) export AUTO=true ;; esac
-
-	printf '\033c\e[3J'	# clear screen
-
-	# output file starting at 'details' section:
-	PARSE=
-	while read -r LINE; do
-		case "$LINE" in '```'*|REPO=*|FILE=*) continue ;; esac
-		case "$LINE" in '## Details') PARSE=yes ;; esac
-		case "$PARSE" in yes) printf '%s\n' "$LINE" ;; esac
-	done <"$1"
-
-	case "$PARSE" in '') return ;; esac
-
-	printf '%s' '< press enter to continue >   '
-	case "$AUTO" in true) ;; *) read NOP ;; esac
-	case "$NOP" in auto) export AUTO=true ;; esac
-}
-
-LS="$( command -v ls || echo 'busybox ls' )"
-CHMOD="$( command -v chmod || echo false )"
-MKTEMP="$( command -v mktemp || echo false )"
-TMPDIR="$( $MKTEMP -d || echo /tmp )"		# find /tmp -type d -name 'tmp.*' -exec rm -fR {} \; 2>/dev/null
-
-# overview:
-show_doc 'doc.md'
-
-# machine monitor: type in hex0 source into memory/file
-show_doc 'step00/doc.md'
-
-# produce HEX0
-show_doc 'step01/doc.md'
-COMPILER='step01/hex0-to-binary.sh'
-SRC="step01/hex0-seed.amd64.hex0"
-DST="$TMPDIR/hex0.bin"
-$COMPILER "$SRC" "$DST" || exit
-$CHMOD +x "$DST"
-
-echo "### step02 | produce 'HEX1'"
-COMPILER_HEX0="$DST"
-SRC='step02/hex1_AMD64.hex0'
-DST="$TMPDIR/hex1.bin"
-$COMPILER_HEX0 "$SRC" "$DST" || exit
-
-echo "### step03 | produce 'HEX2'"
-COMPILER_HEX1="$DST"
-SRC='step03/hex2_AMD64.hex1'
-DST="$TMPDIR/hex2.bin"
-$COMPILER_HEX1 "$SRC" "$DST" || exit
-
-echo "### step04 | produce 'M0'"
-COMPILER_HEX2="$DST"
-SRC="$TMPDIR/step04-elf-m0.hex2"
-SRC1='step04/ELF-amd64.hex2'
-SRC2='step04/M0_AMD64.hex2'
-cat "$SRC1" "$SRC2" >"$SRC"
-DST="$TMPDIR/M0.bin"
-$COMPILER_HEX2 "$SRC" "$DST" || exit
-
-echo "### step05 | produce 'CC'"
-COMPILER_M0="$DST"
-SRC2='step05/cc_amd64.M1'
-DST1="$TMPDIR/step05-cc.hex2"
-$COMPILER_M0 "$SRC2" "$DST1"
 #
-SRC1='step05/ELF-amd64.hex2'
-SRC="$TMPDIR/step05-cc-all.hex2"
-cat "$SRC1" "$DST1" >"$SRC"
-#
-DST="$TMPDIR/step05-cc.bin"
-$COMPILER_HEX2 "$SRC" "$DST" || exit
-
-echo "### step06 | produce ???"
-COMPILER_CC="$DST"
-SRC="$TMPDIR/step06-all.c"
-DST="$TMPDIR/M2.M1"
-cat 'step06/amd64/'* >"$SRC"
-$COMPILER_CC "$SRC" "$DST" || exit
-
-echo "### step07 | produce 'M2.hex2'"
-SRC1='step07/amd64_defs.M1'
-SRC2='step07/libc-core.M1'
-SRC3="$TMPDIR/M2.M1"
-SRC="$TMPDIR/step07-all.M1"
-cat "$SRC1" "$SRC2" "$SRC3" >"$SRC"
-DST="$TMPDIR/M2.hex2"
-$COMPILER_M0 "$SRC" "$DST" || exit
-
-echo "### step08 | produce 'M2'"
-SRC1='step08/ELF-amd64.hex2'
-SRC2="$DST"
-SRC="$TMPDIR/M2-full.hex2"
-cat "$SRC1" "$SRC2" >"$SRC"
-#
-DST="$TMPDIR/M2.bin"
-$COMPILER_HEX2 "$SRC" "$DST" || exit
-COMPILER_M2="$DST"
-
-echo "### step09 | produce 'blood-elf.M1'"
-DST="$TMPDIR/blood-elf.M1"
-ARGS="$( for SRC in step09/*; do printf '%s ' "-f $SRC"; done )"
-# blood-elf.c calloc.c exit.c file.c file_print.c in_set.c malloc.c match.c numerate_number.c require.c
-$COMPILER_M2 --architecture amd64 $ARGS -o "$DST" || exit
-
-echo "### step10 | produce 'M2' ???"
-SRC1='step07/amd64_defs.M1'
-SRC2='step07/libc-core.M1'
-SRC3="$DST"
-SRC="$TMPDIR/step10-all.M1"
-cat "$SRC1" "$SRC2" "$SRC3" >"$SRC"
-DST="$TMPDIR/step10-result.hex2"
-$COMPILER_M0 "$SRC" "$DST" || exit
-
-echo "### step11 | produce 'blood-elf'"
-SRC1='step08/ELF-amd64.hex2'
-SRC2="$DST"
-SRC="$TMPDIR/step11-all.hex2"
-cat "$SRC1" "$SRC2" >"$SRC"
-DST="$TMPDIR/blood-elf-0.bin"
-$COMPILER_HEX2 "$SRC" "$DST" || exit
-
-echo "### step12 | produce 'M1-macro.M1'"
-COMPILER_BLOODELF="$DST"
-ARGS="$( for SRC in step12/*; do printf '%s ' "-f $SRC"; done )"
-# calloc.c exit.c file.c file_print.c in_set.c M1-macro.c malloc.c match.c numerate_number.c require.c string.c
-DST="$TMPDIR/M1-macro.M1"
-$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST" || exit
-
-echo "### step13 | produce 'M1-macro-footer.M1'"
-SRC="$DST"
-DST="$TMPDIR/M1-macro-footer.M1"
-$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST" || exit
-
-echo "### step14 | produce 'M1-macro-full.hex2'"
-SRC1='step07/amd64_defs.M1'
-SRC2='step07/libc-core.M1'
-SRC3="$TMPDIR/M1-macro.M1"
-SRC4="$TMPDIR/M1-macro-footer.M1"
-SRC="$TMPDIR/M1-macro-full.M1"
-cat "$SRC1" "$SRC2" "$SRC3" "$SRC4" >"$SRC"
-#
-DST="$TMPDIR/M1-macro-full.hex2"
-$COMPILER_M0 "$SRC" "$DST" || exit
-
-echo "### step15 | produce 'M1'"
-SRC1='step08/ELF-amd64.hex2'
-SRC2="$DST"
-SRC="$TMPDIR/M1-macro-full_with_header.hex2"
-cat "$SRC1" "$SRC2" >"$SRC"
-#
-DST="$TMPDIR/M1.bin"
-$COMPILER_HEX2 "$SRC" "$DST" || exit
-COMPILER_M1="$DST"
-
-echo "### step16 | produce 'HEX3'"
-DST="$TMPDIR/hex2_linker.M1"
-ARGS="$( for SRC in step16/*; do printf '%s ' "-f $SRC"; done )"
-# calloc.c exit.c file.c file_print.c hex2_linker.c in_set.c malloc.c match.c numerate_number.c require.c stat.c
-$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST"
-SRC="$DST"
-DST="$TMPDIR/hex2_linker-footer.M1"
-$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST" || exit
-#
-SRC1='step07/amd64_defs.M1'
-SRC2='step07/libc-core.M1'
-SRC3="$TMPDIR/hex2_linker.M1"
-SRC4="$DST"
-ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
-DST="$TMPDIR/hex3-pre.hex2"
-$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
-SRC1='step08/ELF-amd64.hex2'
-SRC2="$DST"
-SRC="$TMPDIR/hex3-fill.hex2"
-cat "$SRC1" "$SRC2" >"$SRC"
-DST="$TMPDIR/hex3.bin"
-$COMPILER_HEX2 "$SRC" "$DST" || exit
-COMPILER_HEX3="$DST"
-
-echo "### step17 | produce 'blood-elf-full.bin'"
-ARGS="$( for SRC in step17/*; do printf '%s ' "-f $SRC"; done )"
-# blood-elf.c calloc.c exit.c file.c file_print.c in_set.c malloc.c match.c numerate_number.c require.c
-DST="$TMPDIR/blood-elf.M1"
-$COMPILER_M2 --architecture amd64 $ARGS --debug -o "$DST" || exit
-#
-SRC="$DST"
-DST="$TMPDIR/blood-elf-footer.M1"
-$COMPILER_BLOODELF --64 -f "$SRC" -o "$DST"
-#
-SRC1='step07/amd64_defs.M1'
-SRC2='step07/libc-core.M1'
-SRC3="$SRC"
-SRC4="$DST"
-ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
-DST="$TMPDIR/blood-elf-full.hex2"
-$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
-#
-SRC1='step04/ELF-amd64.hex2'
-SRC2="$DST"
-DST="$TMPDIR/blood-elf-full.bin"
-ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
-$COMPILER_HEX3 -f $SRC1 -f $SRC2 $ARGS -o "$DST" --exec_enable || exit
-COMPILER_BLOODELF_FULL="$DST"
-
-echo "### step18 | produce 'M2-planet' - OriansJ:M2-Planet code is standard C code"
-ARGS="$( for SRC in step18/*; do printf '%s ' "-f $SRC"; done )"
-# calloc.c cc.c cc_core.c cc_globals.c cc.h cc_reader.c cc_strings.c cc_types.c
-# exit.c file.c file_print.c fixup.c in_set.c malloc.c match.c number_pack.c
-# numerate_number.c require.c string.c
-DST="$TMPDIR/better-M2.M1"
-$COMPILER_M2 --architecture amd64 $ARGS--debug -o "$DST"
-SRC="$DST"
-DST="$TMPDIR/M2-footer.M1"
-$COMPILER_BLOODELF_FULL --64 -f "$SRC" -o "$DST"
-SRC1='step07/amd64_defs.M1'
-SRC2='step07/libc-core.M1'
-SRC3="$SRC"
-SRC4="$DST"
-ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
-DST="$TMPDIR/M2-planet.hex2"
-$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
-SRC1='step04/ELF-amd64.hex2'
-SRC2="$DST"
-DST="$TMPDIR/M2-Planet.bin"
-ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
-$COMPILER_HEX3 -f "$SRC1" -f "$SRC2" $ARGS -o "$DST" --exec_enable || exit
-COMPILER_M2PLANET="$DST"
-
-echo "### step19 | produce 'mes-m2'"
-ARGS="$( for SRC in step19/*; do printf '%s ' "-f $SRC"; done )"
-# calloc.c exit.c file.c file_print.c in_set.c malloc.c match.c
-# mes_builtins.c mes.c mes_cell.c mes_eval.c mes.h mes_init.c mes_keyword.c mes_list.c mes_macro.c
-# mes_posix.c mes_print.c mes_read.c mes_record.c mes_string.c mes_tokenize.c mes_vector.c 
-# numerate_number.c
-DST="$TMPDIR/mes.M1"
-$COMPILER_M2PLANET --debug --architecture amd64 $ARGS -o "$DST" || exit
-#
-SRC="$DST"
-DST="$TMPDIR/mes-footer.M1"
-$COMPILER_BLOODELF_FULL --64 -f "$SRC" -o "$DST" || exit
-#
-SRC1='step07/amd64_defs.M1'
-SRC2='step07/libc-core.M1'
-SRC3="$SRC"
-SRC4="$DST"
-DST="$TMPDIR/mes.hex2"
-ARGS="-f $SRC1 -f $SRC2 -f $SRC3 -f $SRC4"
-$COMPILER_M1 $ARGS --LittleEndian --architecture amd64 -o "$DST" || exit
-#
-SRC1='step04/ELF-amd64.hex2'
-SRC2="$DST"
-ARGS="--LittleEndian --architecture amd64 --BaseAddress 0x00600000"
-DST="$TMPDIR/mes-m2.bin"
-$COMPILER_HEX3 -f "$SRC1" -f "$SRC2" $ARGS -o "$DST" --exec_enable || exit
-COMPILER_MESM2="$DST"
+# remove TMPDIR tmp-stuff: find /tmp -type d -name 'tmp.*' -exec rm -fR {} \; 2>/dev/null
 
 # MES_CORE=0 /tmp/tmp.3nSjiPTcKm/mes-m2.bin --help
 # Usage: /tmp/tmp.3nSjiPTcKm/mes-m2.bin [--boot boot.scm] [-f|--file file.scm] [-h|--help]
-
-
-
-
-
-
-echo "### step20 | TODO: produce 'mes' + 'mes-c-library' from 'mescc.scm' via 'mes-m2.bin'"
 
 
 
@@ -388,7 +429,7 @@ echo "### step20 | TODO: produce 'mes' + 'mes-c-library' from 'mescc.scm' via 'm
 # transpiler = source-2-source translator
 
 
-echo "### step21 | TODO: use 'mes' to compile a patched 'tcc'"
+
 # test:
 # mes -c '(display "Hello") (newline)'
 
@@ -462,19 +503,3 @@ echo "### step21 | TODO: use 'mes' to compile a patched 'tcc'"
 # OriansJ:also it would be funny to say the secret to bootstrapping GCC was to write a Lisp in Haskell to run a C compiler written in scheme.
 
 
-echo
-echo "# our produced binary is '$DST': (testrun)"
-$LS -l "$DST"
-MES_CORE=0 $DST --help
-
-echo
-echo "# READY: tmpdir is '$TMPDIR' | remove with 'rm -fR $TMPDIR'"
-echo "# (the next steps are not implemented yet)"
-echo "#"
-echo "# In QEMU-mode you can now explore the system, or just leave it with 'exit' and CTRL+A and 'x'"
-echo
-
-# D=$(pwd)	# e.g. in step18
-# LIST='...'
-# I=0; for F in $LIST; do test -f "$F" || continue; J=$I; test ${#J} -eq 1 && J=0$J; B=$(basename $F); cp -v $F $D/${J}_$B; I=$((I+1)); done
-# for F in $( cd step18 && ls -1 | cut -b4- | sort ); do printf '%s ' $F; done
