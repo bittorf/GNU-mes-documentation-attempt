@@ -1,7 +1,7 @@
 #!/bin/sh
 #
-# this POSIX shell script uses no external commands, but
-# builtins only. It builds MES and later a toolchain in /tmp
+# this POSIX shell script uses (except cat) no external commands,
+# but builtins only. It builds MES and later a toolchain in /tmp
 #
 # syntax check with:
 # SC=SC2086 && shellcheck --shell=dash --exclude=$SC run-amd64.sh
