@@ -12,6 +12,7 @@ addons:
     - zstd		# needed from 'build_qemu_image.sh'
     - qemu		# needed from 'build_qemu_image.sh'
     - qemu-user-static
+    - qemu-system
 
 # see http://docs.travis-ci.com/user/notifications/
 notifications:

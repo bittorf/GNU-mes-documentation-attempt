@@ -4,7 +4,7 @@
 
 FILE_SRC="$1"		# e.g. any *.hex0 source
 FILE_DST="$2"		# e.g. the resulting hex0.bin
-#set -x
+
 while read LINE; do
 	for WORD in $LINE; do
 		case "$WORD" in
