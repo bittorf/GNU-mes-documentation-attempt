@@ -18,5 +18,5 @@ sudo: required
 
 # if one fails, the build is marked b0rken
 script:
-  - './run_amd64.sh'
+  - 'AUTO=true ./run-amd64.sh'
   - './build_qemu_image.sh'
