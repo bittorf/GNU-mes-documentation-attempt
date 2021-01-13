@@ -33,15 +33,14 @@ not enabled (symlinked) commands with e.g. `busybox ls -l /tmp`.
 ## TODO
 
 * document all steps
-* add build instructions for qemu-image
 * autoupdate all files from scattered repos
 * build mes (the c-compiler written in scheme)
 * build mes-cc (the c-compiler which can build tcc)
 * build tcc-pre
 * build tcc-real
-* build gcc
 * build toolchain
-* autobuild kaem-script from doc
+* build gcc
+* generate kaem-script from doc
 * include 'kaem' and 'catm'
 * build HTML-page
 * add all architectures (i386, aarch64, arm, knight)
