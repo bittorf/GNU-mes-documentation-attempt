@@ -1,5 +1,4 @@
-![travis](https://travis-ci.org/bittorf/GNU-mes-documentation-attempt.svg?branch=main&status=started)
-<img src="https://travis-ci.org/bittorf/GNU-mes-documentation-attempt.svg?branch=main&status=started">
+[![Build Status](https://travis-ci.org/bittorf/GNU-mes-documentation-attempt.svg?branch=main)](https://travis-ci.org/bittorf/GNU-mes-documentation-attempt)
 
 ### goal
 
