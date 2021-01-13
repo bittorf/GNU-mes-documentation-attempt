@@ -1,5 +1,5 @@
-[travis]:       https://travis-ci.org/bittorf/GNU-mes-documentation-attempt
-[travisGFX]:    https://travis-ci.org/bittorf/GNU-mes-documentation-attempt.png
+![travis](https://travis-ci.org/bittorf/GNU-mes-documentation-attempt.svg?branch=main&status=started)
+<img src="https://travis-ci.org/bittorf/GNU-mes-documentation-attempt.svg?branch=main&status=started">
 
 ### goal
 
