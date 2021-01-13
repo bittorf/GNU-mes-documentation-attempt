@@ -10,9 +10,7 @@ addons:
     packages:
     - shellcheck        # seems included: https://github.com/koalaman/shellcheck/wiki/TravisCI
     - zstd		# needed from 'build_qemu_image.sh'
-    - qemu		# needed from 'build_qemu_image.sh'
-    - qemu-user-static
-    - qemu-system
+    - qemu-system	# needed from 'build_qemu_image.sh'
 
 # see http://docs.travis-ci.com/user/notifications/
 notifications:

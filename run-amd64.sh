@@ -524,4 +524,7 @@ echo
 
 # OriansJ:also it would be funny to say the secret to bootstrapping GCC was to write a Lisp in Haskell to run a C compiler written in scheme.
 
+# musl-patches:
+# https://github.com/bauen1/myunix/blob/master/toolchain/patches/musl.patch
+# https://gitlab.com/myunix/libc/-/compare/v1.2.1...myunix3-libc
 
