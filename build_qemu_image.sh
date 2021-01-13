@@ -24,5 +24,5 @@ ls -l minilinux/builds/linux/arch/x86/boot/bzImage	# kernel.bin
 ls -l minilinux/builds/initramfs.cpio.xz.xz 		# initrd.xz
 
 echo "[OK] now running 'minilinux/builds/linux/run.sh' in autotest-mode"
-minilinux/builds/linux/run.sh autotest "In QEMU-mode you can now explore the system" 200
+minilinux/builds/linux/run.sh autotest "In QEMU-mode you can now explore the system" 120
 
