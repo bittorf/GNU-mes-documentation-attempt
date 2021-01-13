@@ -25,7 +25,7 @@ show_doc()	# output markdown file and wait for keypress
 
 	# output file until 'details' section:
 	while read -r line; do
-		case "$line" in '## Details') break ;; '```'*) ;; *) printf '%s\n' "$line" ;; esac
+		case "$line" in '## Details') break ;; "```"*) ;; *) printf '%s\n' "$line" ;; esac
 	done <"$file"
 
 	printf '%s' '< press enter to continue, or type "auto" + enter >   '
@@ -84,7 +84,7 @@ echo "### step03 | produce 'HEX2'"
 COMPILER_HEX1="$DST"
 SRC='step03/hex2_AMD64.hex1'
 DST="$TMPDIR/hex2.bin"
-$COMPILER_HEX1 "$SRC" "$DST" || exit
+$COMPILER_HEX1 "$SRC" "$DST" || { ls -alt "$TMPDIR"; exit; }
 
 
 echo "### step04 | produce 'M0'"
