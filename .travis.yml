@@ -18,5 +18,6 @@ sudo: required
 
 # if one fails, the build is marked b0rken
 script:
+  - 'SC=SC2086 && shellcheck --shell=dash --exclude=$SC run-amd64.sh'
   - 'AUTO=true ./run-amd64.sh'
   - './build_qemu_image.sh'

@@ -77,7 +77,7 @@ echo "### step02 | produce 'HEX1'"
 COMPILER_HEX0="$DST"
 SRC='step02/hex1_AMD64.hex0'
 DST="$TMPDIR/hex1.bin"
-$COMPILER_HEX0 "$SRC" "$DST" || exit
+$COMPILER_HEX0 "$SRC" "$DST" || { ls -alt "$TMPDIR"; exit; }
 
 
 echo "### step03 | produce 'HEX2'"
