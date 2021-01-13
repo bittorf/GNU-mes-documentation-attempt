@@ -64,27 +64,26 @@ SRC="step01/hex0-seed.amd64.hex0"
 DST="$TMPDIR/hex0.bin"
 $COMPILER "$SRC" "$DST" || exit
 
-set -x
 # make sure, the created binary is executable:
 # in QEMU-mode we prefill a ramdisk with
 # an executeable 0-byte file /tmp/hex0.bin, so
 # the command 'chmod' is not needed
 CHMOD="$( command -v chmod || echo false )"
 $CHMOD +x "$DST"
-echo "chmod: '$CHMOD'"
+
 
 echo "### step02 | produce 'HEX1'"
 COMPILER_HEX0="$DST"
 SRC='step02/hex1_AMD64.hex0'
 DST="$TMPDIR/hex1.bin"
-$COMPILER_HEX0 "$SRC" "$DST" || { ls -alt "$TMPDIR"; exit; }
+$COMPILER_HEX0 "$SRC" "$DST" || exit
 
 
 echo "### step03 | produce 'HEX2'"
 COMPILER_HEX1="$DST"
 SRC='step03/hex2_AMD64.hex1'
 DST="$TMPDIR/hex2.bin"
-$COMPILER_HEX1 "$SRC" "$DST" || { ls -alt "$TMPDIR"; exit; }
+$COMPILER_HEX1 "$SRC" "$DST" || exit
 
 
 echo "### step04 | produce 'M0'"
