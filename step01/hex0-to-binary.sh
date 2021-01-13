@@ -13,16 +13,12 @@ while read LINE; do
 		esac
 
 		while [ -n "$WORD" ]; do
-logger -s "SHL: '$SHELL'"
-logger -s "Trk: '${WORD%${WORD#??}}'"
-logger -s "Tr2: '${WORD#?}'"
-			HEX="${WORD#??}"
-logger -s "HEX: '$HEX'"
-			HEX="${HEX%$HEX}"		# read first two chars
-logger -s "HEx: '$HEX'"
-			WORD="${WORD#??}"		# remove first two chars
-logger -s "WOd: '$WORD'"
-exit
+			CHAR1="$( printf '%.1s' "$WORD" )"	# 1st char get
+			WORD="${WORD#?}"			# 1st char remove
+			CHAR2="$( printf '%.1s' "$WORD" )"	# 1st char get
+			WORD="${WORD#?}"			# 1st char remove
+			HEX="${CHAR1}${CHAR2}"
+
 			case "$HEX" in
 				[a-fA-F0-9][a-fA-F0-9])
 					OCTAL="$( printf "%o" "0x$HEX" )"
