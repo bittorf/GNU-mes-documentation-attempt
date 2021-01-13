@@ -1,0 +1,22 @@
+dist: trusty
+
+before_install:
+- sudo apt-get update
+
+# https://github.com/koalaman/shellcheck/issues/589
+addons:
+  apt:
+    packages:
+    - shellcheck        # seems included: https://github.com/koalaman/shellcheck/wiki/TravisCI
+
+# see http://docs.travis-ci.com/user/notifications/
+notifications:
+  email:
+    - bb@npl.de
+
+sudo: required
+
+# if one fails, the build is marked b0rken
+script:
+  - './run_amd64.sh'
+  - './build_qemu_image.sh'
