@@ -24,3 +24,7 @@ INITRD_DIR_ADD="$MES_PWD" KEEP_LIST="$KEEP" ./minilinux.sh latest >"$TMP1" 2>"$T
 ls -l minilinux/builds/linux/arch/x86/boot/bzImage	# kernel.bin
 ls -l minilinux/builds/initramfs.cpio.xz.xz 		# initrd.xz
 
+( sleep 300 && killall qemu-system-x86_64 ) &
+minilinux/builds/linux/run.sh
+
+exit $?
