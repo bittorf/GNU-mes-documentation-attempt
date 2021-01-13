@@ -4,7 +4,7 @@
 # builtins only. It builds MES and later a toolchain in /tmp
 #
 # syntax check with:
-# shellcheck --shell=dash --exclude=SC2086 run-amd64.sh
+# SC=SC2086 && shellcheck --shell=dash --exclude=$SC run-amd64.sh
 #
 # see: https://www.gnu.org/software/mes/
 
@@ -18,32 +18,34 @@ TMPDIR="$( $MKTEMP -d || echo /tmp )"
 
 show_doc()	# output markdown file and wait for keypress
 {
+	local file="$1"
+	local line nop parse=
+
 	printf '\033c\e[3J'	# clear screen
 
 	# output file until 'details' section:
-	while read -r LINE; do
-		case "$LINE" in '## Details') break ;; '```'*) ;; *) printf '%s\n' "$LINE" ;; esac
-	done <"$1"
+	while read -r line; do
+		case "$line" in '## Details') break ;; '```'*) ;; *) printf '%s\n' "$line" ;; esac
+	done <"$file"
 
 	printf '%s' '< press enter to continue, or type "auto" + enter >   '
-	case "$AUTO" in true) ;; *) read -r NOP ;; esac
-	case "$NOP" in auto) export AUTO=true ;; esac
+	case "$AUTO" in true) ;; *) read -r nop ;; esac
+	case "$nop" in auto) export AUTO=true ;; esac
 
 	printf '\033c\e[3J'	# clear screen
 
 	# output file starting at 'details' section:
-	PARSE=
-	while read -r LINE; do
-		case "$LINE" in '```'*|REPO=*|FILE=*) continue ;; esac
-		case "$LINE" in '## Details') PARSE=yes ;; esac
-		case "$PARSE" in yes) printf '%s\n' "$LINE" ;; esac
-	done <"$1"
+	while read -r line; do
+		case "$line" in '```'*|REPO=*|FILE=*) continue ;; esac
+		case "$line" in '## Details') parse=yes ;; esac
+		case "$parse" in yes) printf '%s\n' "$line" ;; esac
+	done <"$file"
 
-	case "$PARSE" in '') return ;; esac
+	case "$parse" in '') return ;; esac
 
 	printf '%s' '< press enter to continue >   '
-	case "$AUTO" in true) ;; *) read -r NOP ;; esac
-	case "$NOP" in auto) export AUTO=true ;; esac
+	case "$AUTO" in true) ;; *) read -r nop ;; esac
+	case "$nop" in auto) export AUTO=true ;; esac
 }
 
 
