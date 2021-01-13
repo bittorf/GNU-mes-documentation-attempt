@@ -15,6 +15,7 @@ while read LINE; do
 		while [ -n "$WORD" ]; do
 logger -s "SHL: '$SHELL'"
 logger -s "Trk: '${WORD%${WORD#??}}'"
+logger -s "Tr2: '${WORD#?}'"
 			HEX="${WORD#??}"
 logger -s "HEX: '$HEX'"
 			HEX="${HEX%$HEX}"		# read first two chars
