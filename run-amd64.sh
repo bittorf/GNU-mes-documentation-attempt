@@ -25,7 +25,7 @@ show_doc()	# output markdown file and wait for keypress
 
 	# output file until 'details' section:
 	while read -r line; do
-		case "$line" in '## Details') break ;; "```"*) ;; *) printf '%s\n' "$line" ;; esac
+		case "$line" in '## Details') break ;; \`\`\`*) ;; *) printf '%s\n' "$line" ;; esac
 	done <"$file"
 
 	printf '%s' '< press enter to continue, or type "auto" + enter >   '
