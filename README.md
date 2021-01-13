@@ -1,3 +1,6 @@
+[travis]:       https://travis-ci.org/bittorf/GNU-mes-documentation-attempt
+[travisGFX]:    https://travis-ci.org/bittorf/GNU-mes-documentation-attempt.png
+
 ### goal
 
 A try to understand the GNU mes bootstrap-a-compiler project
