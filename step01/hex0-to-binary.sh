@@ -4,7 +4,7 @@
 
 FILE_SRC="$1"		# e.g. any *.hex0 source
 FILE_DST="$2"		# e.g. the resulting hex0.bin
-set -x
+#set -x
 while read LINE; do
 	for WORD in $LINE; do
 		case "$WORD" in
@@ -13,9 +13,15 @@ while read LINE; do
 		esac
 
 		while [ -n "$WORD" ]; do
-			HEX="${WORD%${WORD#??}}"	# read first two chars
+logger -s "SHL: '$SHELL'"
+logger -s "Trk: '${WORD%${WORD#??}}'"
+			HEX="${WORD#??}"
+logger -s "HEX: '$HEX'"
+			HEX="${HEX%$HEX}"		# read first two chars
+logger -s "HEx: '$HEX'"
 			WORD="${WORD#??}"		# remove first two chars
-
+logger -s "WOd: '$WORD'"
+exit
 			case "$HEX" in
 				[a-fA-F0-9][a-fA-F0-9])
 					OCTAL="$( printf "%o" "0x$HEX" )"
