@@ -1,3 +1,4 @@
+# https://docs.travis-ci.com/user/reference/linux/
 dist: focal
 
 before_install:
@@ -8,7 +9,8 @@ addons:
   apt:
     packages:
     - shellcheck        # seems included: https://github.com/koalaman/shellcheck/wiki/TravisCI
-    - zstd		# needed in 'build_qemu_image.sh'
+    - zstd		# needed from 'build_qemu_image.sh'
+    - qemu		# needed from 'build_qemu_image.sh'
 
 # see http://docs.travis-ci.com/user/notifications/
 notifications:

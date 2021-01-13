@@ -11,5 +11,6 @@ cd * || exit
 KEEP='/bin/busybox /bin/sh /bin/cat'
 INITRD_DIR_ADD="$MES_PWD" KEEP_LIST="$KEEP" ./minilinux.sh latest || exit
 
-ls -l builds/linux/arch/x86/boot/bzImage	# kernel.bin
-ls -l builds/initramfs.cpio.xz.xz 		# initrd.xz
+ls -l minilinux/builds/linux/arch/x86/boot/bzImage	# kernel.bin
+ls -l minilinux/builds/initramfs.cpio.xz.xz 		# initrd.xz
+
