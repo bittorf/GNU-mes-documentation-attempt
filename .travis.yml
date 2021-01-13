@@ -8,6 +8,7 @@ addons:
   apt:
     packages:
     - shellcheck        # seems included: https://github.com/koalaman/shellcheck/wiki/TravisCI
+    - zstd		# needed in 'build_qemu_image.sh'
 
 # see http://docs.travis-ci.com/user/notifications/
 notifications:
