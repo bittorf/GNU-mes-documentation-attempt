@@ -527,4 +527,19 @@ echo
 # musl-patches:
 # https://github.com/bauen1/myunix/blob/master/toolchain/patches/musl.patch
 # https://gitlab.com/myunix/libc/-/compare/v1.2.1...myunix3-libc
+#
+#10:54 < bauen1> stikonas[m]: https://github.com/bauen1/myunix/blob/master/toolchain/patches/musl.patch it 
+#                compiles but is not pretty and i would do so many things differently
+#10:55 < bauen1> stikonas[m]: i'm pretty sure there's bugs in there too, best to start over
+#10:55 < bauen1> stikonas[m]: in any case it boils down to: remove complex numbers (and maybe some other math 
+#                related things), then rewrite some of the assembly that uses opcodes unsupported by tinycc 
+#                (or implement them)
+#10:56 < bauen1> stikonas[m]: keep in mind that myunix2 loaded raw binaries not elf files, leading to some 
+#                pretty terrible things
+#10:57 < bauen1> stikonas[m]: the new musl "port" to myunix v3 is here: 
+#                https://gitlab.com/myunix/libc/-/compare/v1.2.1...myunix3-libc but currently only the exit 
+#                syscall is implemented as an example
+
+# https://lwn.net/Articles/841797/
+# https://stackoverflow.com/questions/9429491/how-are-gcc-and-g-bootstrapped/65708958#65708958
 
