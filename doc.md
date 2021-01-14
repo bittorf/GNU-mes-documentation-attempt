@@ -10,7 +10,7 @@ we have a full toolchain.
 
 All these steps should be understandable for the majority
 of programmers, otherwise the steps must be rewritten or
-better documentated:
+better documented.
 
 The goal is not to have as small programs as possible, but
 to have a sourcecode which is clearly readable.
